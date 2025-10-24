@@ -3,9 +3,9 @@ services:
   backend:
     build:
       context: ./backend
+      tags:
+        - victor995/eventhub-backend:latest
     container_name: eventhub-backend
-    ports:
-      - "3000:3000"
     environment:
       - NODE_ENV=development
       - PORT=3000
@@ -23,10 +23,20 @@ services:
   frontend:
     build:
       context: ./frontend
+      tags:
+        - victor995/eventhub-frontend:latest
     container_name: eventhub-frontend
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     environment:
       - REACT_APP_API_URL=http://localhost/api
       - PORT=3001
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+      - FAST_REFRESH=true
     networks:
       - eventhub-network
     depends_on:

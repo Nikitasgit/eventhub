@@ -31,7 +31,7 @@ postgresPool
   .connect()
   .then(() => {
     postgresStatus = "connected";
-    console.log("PostgreSQL connected");
+    console.log("PosteSQL connected");
   })
   .catch(() => {
     postgresStatus = "error";

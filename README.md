@@ -31,28 +31,31 @@ Conventional Commits is a specification for adding human- and machine-readable m
 
 ## Schéma du workflow Git
 
-```mermaid
-gitGraph
-    commit id: "Initial commit"
-    branch dev
-    checkout dev
-    commit id: "Setup dev branch"
-    branch feature/auth
-    checkout feature/auth
-    commit id: "Add authentication"
-    commit id: "Add user validation"
-    checkout dev
-    merge feature/auth
-    branch feature/dashboard
-    checkout feature/dashboard
-    commit id: "Create dashboard UI"
-    commit id: "Add dashboard components"
-    checkout dev
-    merge feature/dashboard
-    checkout main
-    merge dev
-    commit id: "Release v1.0.0"
-```
+- example new feature:
+# 1. Se positionner sur la branche dev et la mettre à jour
+git checkout dev
+git pull origin dev
+
+# 2. Créer une nouvelle branche feature
+git checkout -b "feature/user-authentication"
+
+# 3. Développer la fonctionnalité avec des commits réguliers
+git add .
+git commit -m "feat: add user login form component"
+git add .
+git commit -m "feat: implement authentication service"
+git add .
+git commit -m "test: add unit tests for auth service"
+
+# 4. Pousser la branche feature
+git push -u origin feature/user-authentication
+
+# 5. Créer une Pull Request vers dev via l'interface Github
+
+# 6. Après review et merge, nettoyer la branche locale
+git checkout dev
+git pull origin dev
+git branch -d feature/user-authentication
 
 ## Règles du workflow
 
@@ -70,11 +73,9 @@ gitGraph
 
 1. **Création d'une feature** :
 
-   ```bash
    git checkout dev
    git pull origin dev
    git checkout -b feature/nom-de-la-fonctionnalite
-   ```
 
 2. **Développement** :
 
