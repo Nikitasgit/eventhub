@@ -1,0 +1,110 @@
+services:
+  # Backend Node.js
+  backend:
+    build:
+      context: ./backend
+      tags:
+        - victor995/eventhub-backend:latest
+    container_name: eventhub-backend
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - MONGODB_URI=mongodb://mongodb:27017/eventhub
+      - POSTGRES_URL=postgresql://postgres:password@postgres:5432/eventhub
+      - REDIS_URL=redis://redis:6379
+    networks:
+      - eventhub-network
+    depends_on:
+      - mongodb
+      - postgres
+      - redis
+
+  # Frontend React
+  frontend:
+    build:
+      context: ./frontend
+      tags:
+        - victor995/eventhub-frontend:latest
+    container_name: eventhub-frontend
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - REACT_APP_API_URL=http://localhost/api
+      - PORT=3001
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+      - FAST_REFRESH=true
+    networks:
+      - eventhub-network
+    depends_on:
+      - backend
+
+  # Nginx reverse proxy
+  nginx:
+    image: nginx:alpine
+    container_name: eventhub-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - eventhub-network
+    depends_on:
+      - backend
+      - frontend
+
+  # MongoDB (NoSQL)
+  mongodb:
+    image: mongo:7
+    container_name: eventhub-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=eventhub
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - eventhub-network
+
+  # PostgreSQL (SQL)
+  postgres:
+    image: postgres:15-alpine
+    container_name: eventhub-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=eventhub
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - eventhub-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Redis (Cache)
+  redis:
+    image: redis:7-alpine
+    container_name: eventhub-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - eventhub-network
+
+networks:
+  eventhub-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+  postgres_data:
+  redis_data:
