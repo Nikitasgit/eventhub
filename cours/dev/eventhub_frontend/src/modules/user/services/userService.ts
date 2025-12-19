@@ -1,11 +1,14 @@
-import { nanoid } from "nanoid";
 import type { User } from "../userSlice";
 
 export class UserService {
   private static users: User[] = [];
+
+  static reset(): void {
+    this.users = [];
+  }
   static createUser(userData: Omit<User, "id">): User {
     const newUser: User = {
-      id: nanoid(),
+      id: crypto.randomUUID(),
       ...userData,
     };
     this.users.push(newUser);
@@ -17,7 +20,8 @@ export class UserService {
 
   static authenticate(email: string, password: string): User | undefined {
     const user = this.findByEmail(email);
-    // En production, on comparerait password avec un hash
+
+    void password;
     if (!user) {
       return undefined;
     }
