@@ -1,5 +1,7 @@
+import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import type { Dependencies } from "../store/dependencies";
-import { type AppState, createStore } from "../store/store";
+import { type AppState } from "../store/store";
+import userReducer from "../user/userSlice";
 
 const createDependencies = (
   dependencies?: Partial<Dependencies>
@@ -11,15 +13,35 @@ export const createTestStore = (config?: {
   initialState?: Partial<AppState>;
   dependencies?: Partial<Dependencies>;
 }) => {
-  const store = createStore({
-    dependencies: createDependencies(config?.dependencies),
+  const reducers = combineReducers({
+    user: userReducer,
   });
 
-  return store;
+  const baseState = reducers(undefined, { type: "@@INIT" } as { type: string });
+
+  const mergedState = config?.initialState
+    ? {
+        ...baseState,
+        ...config.initialState,
+      }
+    : baseState;
+
+  return configureStore({
+    reducer: reducers,
+    preloadedState: mergedState as AppState,
+    devTools: false,
+    middleware: (getDefaultMiddleware) => {
+      return getDefaultMiddleware({
+        thunk: {
+          extraArgument: createDependencies(config?.dependencies),
+        },
+      });
+    },
+  });
 };
 
 export const createTestState = (partialState?: Partial<AppState>) => {
-  const store = createStore({
+  const store = createTestStore({
     dependencies: createDependencies(),
   });
 

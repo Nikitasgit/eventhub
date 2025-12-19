@@ -18,16 +18,6 @@ export class UserService {
     return this.users.find((user) => user.email === email);
   }
 
-  static authenticate(email: string, password: string): User | undefined {
-    const user = this.findByEmail(email);
-
-    void password;
-    if (!user) {
-      return undefined;
-    }
-    return user;
-  }
-
   static updateUser(
     userId: string,
     updates: Partial<Omit<User, "id">>

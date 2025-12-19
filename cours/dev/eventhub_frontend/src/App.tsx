@@ -1,12 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AppWrapper } from "./modules/app/components/AppWrapper";
 import { Layout } from "./modules/app/components/Layout";
-import {
-  HomePage,
-  LoginPage,
-  RegisterPage,
-  ProfilePage,
-} from "./modules/user/pages";
+import { HomePage } from "./modules/common/pages";
+import { ProfilePage } from "./modules/user/pages";
+import { LoginPage, RegisterPage } from "./modules/auth/pages";
 import { ProtectedRoute } from "./modules/app/components/ProtectedRoute";
 
 function App() {

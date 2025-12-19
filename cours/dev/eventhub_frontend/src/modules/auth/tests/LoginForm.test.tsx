@@ -4,7 +4,7 @@ import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
 import { LoginForm } from "../components/LoginForm";
 import { createTestStore } from "../../testing/tests-environement";
-import { UserService } from "../services/userService";
+import { UserService } from "../../user/services/userService";
 
 describe("LoginForm", () => {
   const setup = () => {
@@ -162,3 +162,5 @@ describe("LoginForm", () => {
     ).not.toBeInTheDocument();
   });
 });
+
+
