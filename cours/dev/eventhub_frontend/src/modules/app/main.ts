@@ -1,5 +1,5 @@
-import type { Dependencies } from "./store/dependencies";
-import { createStore, type AppStore } from "./store/store";
+import type { Dependencies } from "../store/dependencies";
+import { createStore, type AppStore } from "../store/store";
 
 export class App {
   public dependencies: Dependencies;

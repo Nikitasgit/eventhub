@@ -1,15 +1,13 @@
-import { Container, CssBaseline, Toolbar, Typography } from "@mui/material";
+import { Container, CssBaseline } from "@mui/material";
+import { Navbar } from "./Navbar";
+
 export const Layout: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   return (
     <>
       <CssBaseline />
-      <Toolbar sx={{ borderBottom: 1, borderColor: "divider" }}>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          Eventhub
-        </Typography>
-      </Toolbar>
+      <Navbar />
       <Container maxWidth="lg" sx={{ mt: 4 }}>
         {children}
       </Container>
