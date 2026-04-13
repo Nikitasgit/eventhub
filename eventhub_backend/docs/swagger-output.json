@@ -1,0 +1,721 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "EventHub API",
+    "version": "1.0.0",
+    "description": "API for EventHub"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000/api/v1",
+      "description": "Local Development Server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "RegisterUserInput": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "user@example.com"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "example": "password123"
+          },
+          "role": {
+            "type": "string",
+            "example": "USER"
+          }
+        }
+      },
+      "LoginUserInput": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "user@example.com"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "example": "password123"
+          }
+        }
+      },
+      "AuthResponse": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string"
+              },
+              "role": {
+                "type": "string"
+              }
+            }
+          },
+          "token": {
+            "type": "string"
+          }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          }
+        }
+      },
+      "EventCategory": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "ea90cb52-97af-47ab-914f-ad6d2f06a4fe"
+          },
+          "name": {
+            "type": "string",
+            "example": "Concert"
+          },
+          "links": {
+            "type": "object",
+            "properties": {
+              "self": {
+                "type": "string",
+                "example": "/api/v1/event-categories/ea90cb52-97af-47ab-914f-ad6d2f06a4fe"
+              }
+            }
+          }
+        }
+      },
+      "EventCategoryLinks": {
+        "type": "object",
+        "properties": {
+          "self": {
+            "type": "string",
+            "example": "/api/v1/event-categories/ea90cb52-97af-47ab-914f-ad6d2f06a4fe"
+          }
+        }
+      },
+      "CreateEventInput": {
+        "type": "object",
+        "required": [
+          "title",
+          "startDate",
+          "endDate",
+          "location",
+          "maxCapacity",
+          "availableTickets",
+          "categoryId"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "Concert de Rock"
+          },
+          "description": {
+            "type": "string",
+            "example": "Un concert de rock avec plusieurs groupes locaux"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-12-31T20:00:00.000Z"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-12-31T23:00:00.000Z"
+          },
+          "location": {
+            "type": "string",
+            "example": "Salle de concert principale, 123 Rue de la Musique, Paris"
+          },
+          "maxCapacity": {
+            "type": "integer",
+            "example": 500
+          },
+          "availableTickets": {
+            "type": "integer",
+            "example": 450
+          },
+          "price": {
+            "type": "number",
+            "example": 25
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "ea90cb52-97af-47ab-914f-ad6d2f06a4fe"
+          }
+        }
+      },
+      "UpdateEventInput": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "Concert de Rock"
+          },
+          "description": {
+            "type": "string",
+            "example": "Un concert de rock avec plusieurs groupes locaux"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-12-31T20:00:00.000Z"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-12-31T23:00:00.000Z"
+          },
+          "location": {
+            "type": "string",
+            "example": "Salle de concert principale, 123 Rue de la Musique, Paris"
+          },
+          "maxCapacity": {
+            "type": "integer",
+            "example": 500
+          },
+          "availableTickets": {
+            "type": "integer",
+            "example": 450
+          },
+          "price": {
+            "type": "number",
+            "example": 25
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "ea90cb52-97af-47ab-914f-ad6d2f06a4fe"
+          }
+        }
+      },
+      "EventLinks": {
+        "type": "object",
+        "properties": {
+          "self": {
+            "type": "string",
+            "example": "/api/v1/events/90ff484b-10b4-4e28-a853-fee2e8e76467"
+          },
+          "update": {
+            "type": "string",
+            "example": "/api/v1/events/90ff484b-10b4-4e28-a853-fee2e8e76467"
+          },
+          "delete": {
+            "type": "string",
+            "example": "/api/v1/events/90ff484b-10b4-4e28-a853-fee2e8e76467"
+          },
+          "organizer": {
+            "type": "string",
+            "example": "/api/v1/users/123e4567-e89b-12d3-a456-426614174000"
+          },
+          "category": {
+            "type": "string",
+            "example": "/api/v1/event-categories/ea90cb52-97af-47ab-914f-ad6d2f06a4fe"
+          }
+        }
+      },
+      "Event": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "location": {
+            "type": "string"
+          },
+          "maxCapacity": {
+            "type": "integer"
+          },
+          "availableTickets": {
+            "type": "integer"
+          },
+          "price": {
+            "type": "number",
+            "nullable": true
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "organizerId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "links": {
+            "$ref": "#/components/schemas/EventLinks"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "summary": "Connecter un utilisateur",
+        "description": "Permet à un utilisateur de se connecter et d'obtenir un token JWT",
+        "tags": [
+          "Authentication"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginUserInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Connexion réussie",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Données de requête invalides"
+          },
+          "401": {
+            "description": "Identifiants invalides"
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "summary": "Enregistrer un nouvel utilisateur",
+        "description": "Permet de créer un nouveau compte utilisateur",
+        "tags": [
+          "Authentication"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterUserInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Utilisateur créé avec succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Données de requête invalides"
+          },
+          "409": {
+            "description": "Un utilisateur avec cet email existe déjà"
+          }
+        }
+      }
+    },
+    "/event-categories": {
+      "get": {
+        "summary": "Obtenir toutes les catégories d'événements",
+        "description": "Récupère la liste de toutes les catégories d'événements disponibles",
+        "tags": [
+          "Event Categories"
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste des catégories d'événements",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/EventCategory"
+                      }
+                    },
+                    "error": {
+                      "nullable": true,
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/event-categories/{id}": {
+      "get": {
+        "summary": "Obtenir une catégorie d'événement par son ID",
+        "description": "Récupère les détails d'une catégorie d'événement spécifique",
+        "tags": [
+          "Event Categories"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "ID de la catégorie d'événement"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Catégorie d'événement trouvée",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/EventCategory"
+                    },
+                    "error": {
+                      "nullable": true,
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Catégorie d'événement non trouvée",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "data": {
+                      "nullable": true,
+                      "type": "object"
+                    },
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "example": "Event category not found"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/events/{id}": {
+      "delete": {
+        "summary": "Supprimer un événement",
+        "description": "Permet à l'organisateur d'un événement de le supprimer",
+        "tags": [
+          "Events"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "ID de l'événement"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Événement supprimé avec succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Vous ne pouvez supprimer que vos propres événements"
+          },
+          "404": {
+            "description": "Événement non trouvé"
+          }
+        }
+      },
+      "get": {
+        "summary": "Obtenir un événement par son ID",
+        "description": "Retourne les détails d'un événement spécifique",
+        "tags": [
+          "Events"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "ID de l'événement"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Détails de l'événement",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Event"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Événement non trouvé"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Mettre à jour un événement",
+        "description": "Permet à l'organisateur d'un événement de le mettre à jour",
+        "tags": [
+          "Events"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "ID de l'événement"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEventInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Événement mis à jour avec succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Données de requête invalides"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Vous ne pouvez modifier que vos propres événements"
+          },
+          "404": {
+            "description": "Événement ou catégorie d'événement non trouvé"
+          }
+        }
+      }
+    },
+    "/events": {
+      "get": {
+        "summary": "Obtenir tous les événements",
+        "description": "Retourne la liste de tous les événements triés par date de création",
+        "tags": [
+          "Events"
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste des événements",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Event"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Créer un nouvel événement",
+        "description": "Permet à un utilisateur authentifié de créer un nouvel événement",
+        "tags": [
+          "Events"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEventInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Événement créé avec succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Données de requête invalides"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "404": {
+            "description": "Catégorie d'événement non trouvée"
+          }
+        }
+      }
+    }
+  },
+  "tags": []
+}
