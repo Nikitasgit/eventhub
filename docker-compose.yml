@@ -15,7 +15,7 @@ services:
       context: ./eventhub_frontend
     container_name: eventhub-frontend
     environment:
-      VITE_API_URL: http://localhost/api/v1
+      VITE_API_URL: http://nginx/api/v1
       CHOKIDAR_USEPOLLING: "true"
     depends_on:
       - backend
@@ -38,8 +38,6 @@ services:
   mongodb:
     image: mongo:7
     container_name: eventhub-mongodb
-    ports:
-      - "27017:27017"
     volumes:
       - mongodb_data:/data/db
     networks:
