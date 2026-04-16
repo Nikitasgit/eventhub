@@ -1,9 +1,9 @@
 pipeline {
   agent any
 
-tools {
-    nodejs 'Node-18'
-}
+  tools {
+      nodejs 'Node-18'
+  }
 
   environment {
     IMAGE_TAG = "${BUILD_NUMBER}"
@@ -49,5 +49,27 @@ tools {
         sh "docker build -t eventhub-frontend:latest ./eventhub_frontend"
       }
     }
+
+    stage('Docker Push') {
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+            
+            sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
+
+            sh "docker tag eventhub-backend:${IMAGE_TAG} $DOCKER_USER/eventhub-backend:${IMAGE_TAG}"
+            sh "docker tag eventhub-backend:latest $DOCKER_USER/eventhub-backend:latest"
+
+            sh "docker tag eventhub-frontend:${IMAGE_TAG} $DOCKER_USER/eventhub-frontend:${IMAGE_TAG}"
+            sh "docker tag eventhub-frontend:latest $DOCKER_USER/eventhub-frontend:latest"
+
+            sh "docker push $DOCKER_USER/eventhub-backend:${IMAGE_TAG}"
+            sh "docker push $DOCKER_USER/eventhub-backend:latest"
+
+            sh "docker push $DOCKER_USER/eventhub-frontend:${IMAGE_TAG}"
+            sh "docker push $DOCKER_USER/eventhub-frontend:latest"
+        }
+      }
+    }
+
   }
 }
