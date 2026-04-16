@@ -1,9 +1,9 @@
 pipeline {
   agent any
 
- tools {
-   nodejs 'Node-20'
-  }
+tools {
+    nodejs 'Node-18'
+}
 
   environment {
     IMAGE_TAG = "${BUILD_NUMBER}"
