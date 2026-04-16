@@ -2,19 +2,12 @@ pipeline {
   agent any
 
   stages {
-
-    stage('Preparation') {
+    stage('Checkout') {
       steps {
-        script {
-          try {
-            sh 'docker compose down || true'
-          } catch (Exception e) {
-            echo "No existing containers to stop."
-          }
-        }
+       checkout scm
       }
     }
-
+    
     stage('Build') {
       steps {
         build job: 'BuildAppJob'
@@ -26,8 +19,8 @@ pipeline {
         build job: 'TestEventhubJob'
       }
     }
-  }
-   stage('SonarQube Analysis') {
+
+    stage('SonarQube Analysis') {
       steps {
         dir('eventhub_backend') {
           withSonarQubeEnv('SonarQube') {
@@ -44,4 +37,6 @@ pipeline {
         }
       }
     }
+
+  }
 }
