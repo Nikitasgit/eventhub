@@ -205,6 +205,32 @@ describe("create event", () => {
     });
   });
 
+  describe("Scenario: category does not exist", () => {
+    const futureDate = new Date();
+    futureDate.setDate(futureDate.getDate() + 30);
+    const endDate = new Date(futureDate);
+    endDate.setHours(endDate.getHours() + 3);
+
+    const payload = {
+      title: "Concert de Rock",
+      description: "Un concert de rock",
+      startDate: futureDate,
+      endDate: endDate,
+      location: "Paris, France",
+      maxCapacity: 100,
+      availableTickets: 90,
+      price: 25.0,
+      category: "000000000000000000000099",
+      organizer: "1",
+    };
+
+    it("should throw an error", async () => {
+      await expect(() => useCase.execute(payload)).rejects.toThrow(
+        ERROR_MESSAGES.EVENT_CATEGORY_NOT_FOUND
+      );
+    });
+  });
+
   describe("Scenario: Payload is valid", () => {
     const futureDate = new Date();
     futureDate.setDate(futureDate.getDate() + 30);

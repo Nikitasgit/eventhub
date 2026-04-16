@@ -1,15 +1,12 @@
 #!/bin/bash
 
-echo "******************************"
+echo "********************************"
 echo "BUILD ET DEPLOIEMENT EVENTHUB"
-echo "******************************"
+echo "********************************"
 
-# Arrête les anciens conteneurs
 docker compose down
-
-# Reconstruit et relance l’app
 docker compose up -d --build
 
-echo "******************************"
+echo "********************************"
 echo "DEPLOIEMENT TERMINE !"
 date

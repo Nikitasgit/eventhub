@@ -1,5 +1,5 @@
 import type { IUserRepository } from "@/domain/interfaces/user-repository.interface";
-import bcrypt from "bcrypt";
+import * as bcrypt from "bcrypt";
 import { ERROR_MESSAGES } from "@/shared/constants/error-messages";
 
 export interface RegisterUserInput {

@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import jwt from "jsonwebtoken";
+import * as jwt from "jsonwebtoken";
 import { extractToken } from "@/api/utils/auth";
 import type { UserPayload } from "@/domain/types";
 import { getEnvVariable } from "@/api/utils/shared";

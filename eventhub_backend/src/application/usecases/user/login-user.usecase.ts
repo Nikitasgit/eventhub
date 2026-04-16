@@ -1,5 +1,5 @@
 import type { IUserRepository } from "@/domain/interfaces/user-repository.interface";
-import bcrypt from "bcrypt";
+import * as bcrypt from "bcrypt";
 import { generateToken, generateTempToken } from "@/api/utils/auth";
 import { ERROR_MESSAGES } from "@/shared/constants/error-messages";
 

@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken";
+import * as jwt from "jsonwebtoken";
 import { getEnvVariable } from "@/api/utils/shared";
 import type { UserPayload } from "@/domain/types";
 

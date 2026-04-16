@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import { LoginUserUseCase } from "@/application/usecases/user";
+import { LoginUserUseCase } from "@/application/usecases/user/login-user.usecase";
 
 export class LoginController {
   constructor(private loginUserUseCase: LoginUserUseCase) {}
