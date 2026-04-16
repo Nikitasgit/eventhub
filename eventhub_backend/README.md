@@ -12,7 +12,6 @@ API REST pour la gestion d'événements, construite avec Express.js, TypeScript 
 - Node.js (v18 ou supérieur)
 - Docker et Docker Compose
 - npm ou yarn
-
 ## 🛠️ Installation
 
 1. Cloner le projet
