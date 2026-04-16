@@ -9,7 +9,6 @@ API REST pour la gestion d'événements, construite avec Express.js, TypeScript 
 - **TOTP/2FA** - Authentification à deux facteurs
 - **Swagger** - Documentation API
 ## 📋 Prérequis
-
 - Node.js (v18 ou supérieur)
 - Docker et Docker Compose
 - npm ou yarn
