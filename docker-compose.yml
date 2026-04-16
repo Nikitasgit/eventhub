@@ -14,9 +14,8 @@ services:
     build:
       context: ./eventhub_frontend
     container_name: eventhub-frontend
-    environment:
-      VITE_API_URL: http://nginx/api/v1
-      CHOKIDAR_USEPOLLING: "true"
+    env_file:
+      - ./eventhub_frontend/.env
     depends_on:
       - backend
     networks:
