@@ -1,5 +1,4 @@
 # EventHub API
-
 API REST pour la gestion d'événements, construite avec Express.js, TypeScript et MongoDB (via Mongoose).
 ## 🚀 Technologies
 
