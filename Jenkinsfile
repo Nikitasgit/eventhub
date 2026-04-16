@@ -23,17 +23,15 @@ pipeline {
       }
     }
 
-    stage('SonarQube Analysis') {
-      steps {
-        dir('eventhub_backend') {
-          withSonarQubeEnv('SonarQube') {
-            sh '''
-              sonar-scanner
-            '''
-          }
-        }
+stage('SonarQube Analysis') {
+  steps {
+    dir('eventhub_backend') {
+      withSonarQubeEnv('SonarQube') {
+        sh "${tool('SonarScanner')}/bin/sonar-scanner"
       }
     }
+  }
+}
 
     stage('Quality Gate') {
       steps {
