@@ -1,13 +1,11 @@
 pipeline {
   agent any
 
+  environment {
+    IMAGE_TAG = "${BUILD_NUMBER}"
+  }
+
   stages {
-    stage('Checkout') {
-      steps {
-       checkout scm
-      }
-    }
-    
     stage('Build') {
       steps {
         build job: 'BuildAppJob'
@@ -38,5 +36,14 @@ pipeline {
       }
     }
 
+    stage('Docker Build') {
+      steps {
+        sh "docker build -t eventhub-backend:${IMAGE_TAG} ./eventhub_backend"
+        sh "docker build -t eventhub-backend:latest ./eventhub_backend"
+
+        sh "docker build -t eventhub-frontend:${IMAGE_TAG} ./eventhub_frontend"
+        sh "docker build -t eventhub-frontend:latest ./eventhub_frontend"
+      }
+    }
   }
 }
