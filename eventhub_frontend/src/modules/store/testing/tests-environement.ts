@@ -1,7 +1,12 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
-import type { Dependencies } from "../store/dependencies";
-import { type AppState } from "../store/store";
-import userReducer from "../user/userSlice";
+import type { Dependencies } from "../dependencies";
+import authReducer from "../../auth/authSlice";
+
+const testReducers = combineReducers({
+  auth: authReducer,
+});
+
+export type TestRootState = ReturnType<typeof testReducers>;
 
 const createDependencies = (
   dependencies?: Partial<Dependencies>
@@ -10,25 +15,35 @@ const createDependencies = (
 });
 
 export const createTestStore = (config?: {
-  initialState?: Partial<AppState>;
+  initialState?: Partial<TestRootState>;
   dependencies?: Partial<Dependencies>;
 }) => {
-  const reducers = combineReducers({
-    user: userReducer,
-  });
+  const baseState = testReducers(undefined, {
+    type: "@@INIT",
+  } as { type: string });
 
-  const baseState = reducers(undefined, { type: "@@INIT" } as { type: string });
+  const withIdleAuth: TestRootState = {
+    ...baseState,
+    auth: {
+      ...baseState.auth,
+      loading: false,
+    },
+  };
 
   const mergedState = config?.initialState
     ? {
-        ...baseState,
+        ...withIdleAuth,
         ...config.initialState,
+        auth: {
+          ...withIdleAuth.auth,
+          ...(config.initialState.auth ?? {}),
+        },
       }
-    : baseState;
+    : withIdleAuth;
 
   return configureStore({
-    reducer: reducers,
-    preloadedState: mergedState as AppState,
+    reducer: testReducers,
+    preloadedState: mergedState,
     devTools: false,
     middleware: (getDefaultMiddleware) => {
       return getDefaultMiddleware({
@@ -40,7 +55,7 @@ export const createTestStore = (config?: {
   });
 };
 
-export const createTestState = (partialState?: Partial<AppState>) => {
+export const createTestState = (partialState?: Partial<TestRootState>) => {
   const store = createTestStore({
     dependencies: createDependencies(),
   });

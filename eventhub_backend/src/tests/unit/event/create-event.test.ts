@@ -44,7 +44,7 @@ describe("create event", () => {
 
     it("should throw an error", async () => {
       await expect(() => useCase.execute(payload)).rejects.toThrow(
-        ERROR_MESSAGES.EVENT_TITLE_REQUIRED
+        "EVENT_TITLE_REQUIRED"
       );
     });
   });
@@ -70,7 +70,7 @@ describe("create event", () => {
 
     it("should throw an error", async () => {
       await expect(() => useCase.execute(payload)).rejects.toThrow(
-        ERROR_MESSAGES.EVENT_START_DATE_MUST_BE_FUTURE
+        "EVENT_START_DATE_MUST_BE_FUTURE"
       );
     });
   });
@@ -96,7 +96,7 @@ describe("create event", () => {
 
     it("should throw an error", async () => {
       await expect(() => useCase.execute(payload)).rejects.toThrow(
-        ERROR_MESSAGES.EVENT_END_DATE_MUST_BE_AFTER_START
+        "EVENT_END_DATE_MUST_BE_AFTER_START"
       );
     });
   });
@@ -122,7 +122,7 @@ describe("create event", () => {
 
     it("should throw an error", async () => {
       await expect(() => useCase.execute(payload)).rejects.toThrow(
-        ERROR_MESSAGES.EVENT_LOCATION_REQUIRED
+        "EVENT_LOCATION_REQUIRED"
       );
     });
   });
@@ -148,7 +148,7 @@ describe("create event", () => {
 
     it("should throw an error", async () => {
       await expect(() => useCase.execute(payload)).rejects.toThrow(
-        ERROR_MESSAGES.EVENT_MAX_CAPACITY_INVALID
+        "EVENT_MAX_CAPACITY_INVALID"
       );
     });
   });
@@ -174,7 +174,7 @@ describe("create event", () => {
 
     it("should throw an error", async () => {
       await expect(() => useCase.execute(payload)).rejects.toThrow(
-        ERROR_MESSAGES.EVENT_AVAILABLE_TICKETS_EXCEED_CAPACITY
+        "EVENT_AVAILABLE_TICKETS_EXCEED_CAPACITY"
       );
     });
   });
@@ -200,7 +200,7 @@ describe("create event", () => {
 
     it("should throw an error", async () => {
       await expect(() => useCase.execute(payload)).rejects.toThrow(
-        ERROR_MESSAGES.EVENT_PRICE_MUST_BE_POSITIVE
+        "EVENT_PRICE_MUST_BE_POSITIVE"
       );
     });
   });

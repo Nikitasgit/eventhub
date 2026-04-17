@@ -2,8 +2,8 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
 import { ProfileForm } from "../components/ProfileForm";
-import { createTestStore } from "../../testing/tests-environement";
-import type { User } from "../userSlice";
+import { createTestStore } from "../../store/testing/tests-environement";
+import type { User } from "../../auth/authSlice";
 
 describe("ProfileForm", () => {
   const testUser: User = {
@@ -16,9 +16,11 @@ describe("ProfileForm", () => {
     const store = createTestStore({
       initialState: user
         ? {
-            user: {
-              currentUser: user,
-              isAuthenticated: true,
+            auth: {
+              user,
+              loading: false,
+              error: null,
+              pending2FA: false,
             },
           }
         : undefined,
@@ -42,29 +44,30 @@ describe("ProfileForm", () => {
     setup(testUser);
 
     await waitFor(() => {
-      const emailInput = screen.getByRole("textbox", {
-        name: /email/i,
-      }) as HTMLInputElement;
-      expect(emailInput.value).toBe(testUser.email);
+      expect(screen.getByText(testUser.email)).toBeInTheDocument();
     });
 
-    const emailInput = screen.getByRole("textbox", {
-      name: /email/i,
-    }) as HTMLInputElement;
-    const roleInput = screen.getByRole("textbox", {
-      name: /rôle/i,
-    }) as HTMLInputElement;
-
-    expect(emailInput.value).toBe(testUser.email);
-    expect(roleInput.value).toBe(testUser.role);
-    expect(emailInput).toBeDisabled();
-    expect(roleInput).toBeDisabled();
+    expect(screen.getByText(testUser.role)).toBeInTheDocument();
   });
 
   it("should show loading state while fetching user", () => {
-    setup();
-    // When no user is provided, useCurrentUser will try to fetch
-    // The component should show a loading spinner
+    const store = createTestStore({
+      initialState: {
+        auth: {
+          user: null,
+          loading: true,
+          error: null,
+          pending2FA: false,
+        },
+      },
+    });
+    render(
+      <Provider store={store}>
+        <BrowserRouter>
+          <ProfileForm />
+        </BrowserRouter>
+      </Provider>
+    );
     expect(screen.getByRole("progressbar")).toBeInTheDocument();
   });
 });

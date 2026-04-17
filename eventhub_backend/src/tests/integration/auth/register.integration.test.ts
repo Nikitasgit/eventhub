@@ -10,12 +10,17 @@ import { UserModel } from "@/domain/models/user.model";
 const express = require("express");
 const request = require("supertest");
 
+const MONGO_CONNECT_TIMEOUT_MS = 60_000;
+
 describe("POST /api/v1/auth/register", () => {
   beforeAll(async () => {
     process.env.MONGO_URI =
       process.env.MONGO_URI ?? "mongodb://localhost:27017/eventhub_integration_test";
-    await mongoose.connect(process.env.MONGO_URI);
-  });
+    await mongoose.connect(process.env.MONGO_URI, {
+      serverSelectionTimeoutMS: MONGO_CONNECT_TIMEOUT_MS,
+      connectTimeoutMS: MONGO_CONNECT_TIMEOUT_MS,
+    });
+  }, MONGO_CONNECT_TIMEOUT_MS);
 
   beforeEach(async () => {
     await UserModel.deleteMany({});
@@ -23,7 +28,7 @@ describe("POST /api/v1/auth/register", () => {
 
   afterAll(async () => {
     await mongoose.connection.close();
-  });
+  }, MONGO_CONNECT_TIMEOUT_MS);
 
   const buildTestApp = () => {
     const app = express();

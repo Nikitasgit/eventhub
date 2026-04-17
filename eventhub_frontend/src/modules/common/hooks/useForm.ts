@@ -112,15 +112,25 @@ export const useForm = <T extends object, S extends FormState = FormState>({
           onSuccess();
         }
       } catch (error) {
+        let errorMessage = "Une erreur est survenue";
+        if (typeof error === "string") {
+          errorMessage = error;
+        } else if (error instanceof Error) {
+          errorMessage = error.message;
+        } else if (
+          error &&
+          typeof error === "object" &&
+          "message" in error &&
+          typeof (error as { message: unknown }).message === "string"
+        ) {
+          errorMessage = (error as { message: string }).message;
+        }
         setState(
           (prev) =>
             ({
               ...prev,
               loading: false,
-              error:
-                error instanceof Error
-                  ? error.message
-                  : "Une erreur est survenue",
+              error: errorMessage,
               success: false,
             } as S)
         );

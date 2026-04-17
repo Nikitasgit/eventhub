@@ -1,8 +1,15 @@
 {
   "extends": "./tsconfig.app.json",
   "compilerOptions": {
-    "types": ["jest", "@testing-library/jest-dom", "node"],
-    "verbatimModuleSyntax": false
+    "types": ["jest", "@testing-library/jest-dom", "node", "vite/client"],
+    "verbatimModuleSyntax": false,
+    "module": "ESNext",
+    "moduleResolution": "bundler"
   },
-  "include": ["src/**/*.test.tsx", "src/**/*.test.ts", "jest.setup.ts"]
+  "include": [
+    "src/**/*.test.tsx",
+    "src/**/*.test.ts",
+    "src/modules/store/testing/tests-environement.ts",
+    "jest.setup.ts"
+  ]
 }

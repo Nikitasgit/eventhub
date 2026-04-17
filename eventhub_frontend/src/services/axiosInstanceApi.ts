@@ -1,7 +1,15 @@
 import axios from "axios";
 import type { AxiosRequestConfig } from "axios";
+import { getViteApiBaseUrl } from "./viteEnv";
 
-const baseURL = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
+const nodeEnvUrl =
+  typeof globalThis !== "undefined" && "process" in globalThis
+    ? (globalThis as unknown as { process?: { env?: Record<string, string | undefined> } })
+        .process?.env?.VITE_API_URL
+    : undefined;
+
+const baseURL =
+  getViteApiBaseUrl() || nodeEnvUrl || "http://localhost:8000/api/v1";
 
 export const axiosInstance = (options: AxiosRequestConfig = {}) =>
   axios.create({

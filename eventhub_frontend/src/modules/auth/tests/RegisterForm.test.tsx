@@ -3,8 +3,22 @@ import userEvent from "@testing-library/user-event";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
 import { RegisterForm } from "../components/RegisterForm";
-import { createTestStore } from "../../testing/tests-environement";
-import { UserService } from "../../user/services/userService";
+import { createTestStore } from "../../store/testing/tests-environement";
+import { apiClient } from "../services/apiClient";
+
+jest.mock("../services/apiClient", () => ({
+  apiClient: {
+    login: jest.fn(),
+    getCurrentUser: jest.fn(),
+    logout: jest.fn(),
+    register: jest.fn(),
+    verifyTwoFactorAuth: jest.fn(),
+    verifyBackupCode: jest.fn(),
+    getQrCode: jest.fn(),
+    enableTwoFactorAuth: jest.fn(),
+    disableTwoFactorAuth: jest.fn(),
+  },
+}));
 
 describe("RegisterForm", () => {
   const setup = () => {
@@ -20,24 +34,12 @@ describe("RegisterForm", () => {
   };
 
   beforeEach(() => {
-    UserService.reset();
+    jest.mocked(apiClient.register).mockReset();
   });
 
   it("should display title", () => {
     setup();
     expect(screen.getByText("Inscription")).toBeInTheDocument();
-  });
-
-  it("should display firstName input", () => {
-    setup();
-    expect(
-      screen.getByRole("textbox", { name: /prénom/i })
-    ).toBeInTheDocument();
-  });
-
-  it("should display lastName input", () => {
-    setup();
-    expect(screen.getByLabelText(/^nom\s/i)).toBeInTheDocument();
   });
 
   it("should display email input", () => {
@@ -66,54 +68,24 @@ describe("RegisterForm", () => {
 
   it("should display disabled submit button when password is invalid", async () => {
     setup();
-    const firstNameInput = screen.getByRole("textbox", { name: /prénom/i });
-    const lastNameInput = screen.getByLabelText(/^nom\s/i);
     const emailInput = screen.getByRole("textbox", { name: /email/i });
     const passwordInput = screen.getByLabelText(/mot de passe/i);
 
-    await userEvent.type(firstNameInput, "John");
-    await userEvent.type(lastNameInput, "Doe");
     await userEvent.type(emailInput, "test@example.com");
-    await userEvent.type(passwordInput, "short"); // Mot de passe trop court
+    await userEvent.type(passwordInput, "short");
 
     expect(screen.getByRole("button", { name: /s'inscrire/i })).toBeDisabled();
   });
 
-  it("should enable submit button when all fields are filled and password is valid", async () => {
+  it("should enable submit button when email and password are valid", async () => {
     setup();
-    const firstNameInput = screen.getByRole("textbox", { name: /prénom/i });
-    const lastNameInput = screen.getByLabelText(/^nom\s/i);
     const emailInput = screen.getByRole("textbox", { name: /email/i });
     const passwordInput = screen.getByLabelText(/mot de passe/i);
 
-    await userEvent.type(firstNameInput, "John");
-    await userEvent.type(lastNameInput, "Doe");
     await userEvent.type(emailInput, "test@example.com");
     await userEvent.type(passwordInput, "ValidPassword123!");
 
     expect(screen.getByRole("button", { name: /s'inscrire/i })).toBeEnabled();
-  });
-
-  it("should update firstName when firstName input is changed", async () => {
-    setup();
-    const firstNameInput = screen.getByRole("textbox", {
-      name: /prénom/i,
-    }) as HTMLInputElement;
-
-    await userEvent.clear(firstNameInput);
-    await userEvent.type(firstNameInput, "Jane");
-
-    expect(firstNameInput.value).toBe("Jane");
-  });
-
-  it("should update lastName when lastName input is changed", async () => {
-    setup();
-    const lastNameInput = screen.getByLabelText(/^nom\s/i) as HTMLInputElement;
-
-    await userEvent.clear(lastNameInput);
-    await userEvent.type(lastNameInput, "Smith");
-
-    expect(lastNameInput.value).toBe("Smith");
   });
 
   it("should update email when email input is changed", async () => {
@@ -159,15 +131,15 @@ describe("RegisterForm", () => {
   it("should display error message when fields are empty on submit", async () => {
     setup();
     const form = screen
-      .getByRole("textbox", { name: /prénom/i })
+      .getByRole("textbox", { name: /email/i })
       .closest("form");
 
     if (!form) {
       throw new Error("Form not found");
     }
 
-    const firstNameInput = screen.getByRole("textbox", { name: /prénom/i });
-    await userEvent.type(firstNameInput, "John");
+    const emailInput = screen.getByRole("textbox", { name: /email/i });
+    await userEvent.type(emailInput, "onlyemail@example.com");
 
     fireEvent.submit(form);
 
@@ -176,23 +148,19 @@ describe("RegisterForm", () => {
     ).toBeInTheDocument();
   });
 
-  it("should display error message when password is invalid", async () => {
+  it("should display error message when password is invalid on submit", async () => {
     setup();
     const form = screen
-      .getByRole("textbox", { name: /prénom/i })
+      .getByRole("textbox", { name: /email/i })
       .closest("form");
 
     if (!form) {
       throw new Error("Form not found");
     }
 
-    const firstNameInput = screen.getByRole("textbox", { name: /prénom/i });
-    const lastNameInput = screen.getByLabelText(/^nom\s/i);
     const emailInput = screen.getByRole("textbox", { name: /email/i });
     const passwordInput = screen.getByLabelText(/mot de passe/i);
 
-    await userEvent.type(firstNameInput, "John");
-    await userEvent.type(lastNameInput, "Doe");
     await userEvent.type(emailInput, "test@example.com");
     await userEvent.type(passwordInput, "short");
 
@@ -206,22 +174,16 @@ describe("RegisterForm", () => {
   });
 
   it("should display error message when email already exists", async () => {
-    const existingUser = UserService.createUser({
-      email: "existing@example.com",
-      firstName: "Existing",
-      lastName: "User",
-    });
+    jest.mocked(apiClient.register).mockRejectedValueOnce(
+      new Error("Cet email est déjà utilisé")
+    );
 
     setup();
-    const firstNameInput = screen.getByRole("textbox", { name: /prénom/i });
-    const lastNameInput = screen.getByLabelText(/^nom\s/i);
     const emailInput = screen.getByRole("textbox", { name: /email/i });
     const passwordInput = screen.getByLabelText(/mot de passe/i);
     const submitButton = screen.getByRole("button", { name: /s'inscrire/i });
 
-    await userEvent.type(firstNameInput, "John");
-    await userEvent.type(lastNameInput, "Doe");
-    await userEvent.type(emailInput, existingUser.email);
+    await userEvent.type(emailInput, "existing@example.com");
     await userEvent.type(passwordInput, "ValidPassword123!");
     await userEvent.click(submitButton);
 
@@ -230,16 +192,20 @@ describe("RegisterForm", () => {
     ).toBeInTheDocument();
   });
 
-  it("should successfully register when all fields are valid", async () => {
+  it("should successfully register when fields are valid", async () => {
+    jest.mocked(apiClient.register).mockResolvedValueOnce({
+      user: {
+        id: "new-id",
+        email: "newuser@example.com",
+        role: "USER",
+      },
+    });
+
     setup();
-    const firstNameInput = screen.getByRole("textbox", { name: /prénom/i });
-    const lastNameInput = screen.getByLabelText(/^nom\s/i);
     const emailInput = screen.getByRole("textbox", { name: /email/i });
     const passwordInput = screen.getByLabelText(/mot de passe/i);
     const submitButton = screen.getByRole("button", { name: /s'inscrire/i });
 
-    await userEvent.type(firstNameInput, "John");
-    await userEvent.type(lastNameInput, "Doe");
     await userEvent.type(emailInput, "newuser@example.com");
     await userEvent.type(passwordInput, "ValidPassword123!");
     await userEvent.click(submitButton);
@@ -249,23 +215,19 @@ describe("RegisterForm", () => {
     });
   });
 
-  it("should clear error message when user starts typing", async () => {
+  it("should clear error message when user starts typing after invalid submit", async () => {
     setup();
     const form = screen
-      .getByRole("textbox", { name: /prénom/i })
+      .getByRole("textbox", { name: /email/i })
       .closest("form");
 
     if (!form) {
       throw new Error("Form not found");
     }
 
-    const firstNameInput = screen.getByRole("textbox", { name: /prénom/i });
-    const lastNameInput = screen.getByLabelText(/^nom\s/i);
     const emailInput = screen.getByRole("textbox", { name: /email/i });
     const passwordInput = screen.getByLabelText(/mot de passe/i);
 
-    await userEvent.type(firstNameInput, "John");
-    await userEvent.type(lastNameInput, "Doe");
     await userEvent.type(emailInput, "test@example.com");
     await userEvent.type(passwordInput, "short");
 
@@ -283,5 +245,3 @@ describe("RegisterForm", () => {
     ).not.toBeInTheDocument();
   });
 });
-
-

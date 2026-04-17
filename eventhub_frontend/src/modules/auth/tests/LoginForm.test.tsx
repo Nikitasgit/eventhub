@@ -3,10 +3,51 @@ import userEvent from "@testing-library/user-event";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
 import { LoginForm } from "../components/LoginForm";
-import { createTestStore } from "../../testing/tests-environement";
+import { createTestStore } from "../../store/testing/tests-environement";
 import { UserService } from "../../user/services/userService";
+import { apiClient } from "../services/apiClient";
+import type { User } from "../authSlice";
+
+jest.mock("../services/apiClient", () => ({
+  apiClient: {
+    login: jest.fn(),
+    getCurrentUser: jest.fn(),
+    logout: jest.fn(),
+    register: jest.fn(),
+    verifyTwoFactorAuth: jest.fn(),
+    verifyBackupCode: jest.fn(),
+    getQrCode: jest.fn(),
+    enableTwoFactorAuth: jest.fn(),
+    disableTwoFactorAuth: jest.fn(),
+  },
+}));
 
 describe("LoginForm", () => {
+  let currentUser: User | null = null;
+
+  const setupApiMocks = () => {
+    currentUser = null;
+    jest.mocked(apiClient.login).mockImplementation(async (email: string) => {
+      const user = UserService.findByEmail(email);
+      if (!user) {
+        throw new Error("Email ou mot de passe incorrect");
+      }
+      currentUser = {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        twoFactorEnabled: user.twoFactorEnabled,
+      };
+      return { user: currentUser };
+    });
+    jest.mocked(apiClient.getCurrentUser).mockImplementation(async () => {
+      if (!currentUser) {
+        throw new Error("Utilisateur non authentifié");
+      }
+      return { user: currentUser };
+    });
+  };
+
   const setup = () => {
     const store = createTestStore();
     render(
@@ -21,6 +62,7 @@ describe("LoginForm", () => {
 
   beforeEach(() => {
     UserService.reset();
+    setupApiMocks();
   });
 
   it("should display title", () => {
@@ -122,10 +164,9 @@ describe("LoginForm", () => {
   });
 
   it("should successfully login when credentials are correct", async () => {
-    const testUser = UserService.createUser({
+    UserService.createUser({
       email: "test@example.com",
-      firstName: "Test",
-      lastName: "User",
+      role: "USER",
     });
 
     setup();
@@ -133,7 +174,7 @@ describe("LoginForm", () => {
     const passwordInput = screen.getByLabelText(/mot de passe/i);
     const submitButton = screen.getByRole("button", { name: "Se connecter" });
 
-    await userEvent.type(emailInput, testUser.email);
+    await userEvent.type(emailInput, "test@example.com");
     await userEvent.type(passwordInput, "anypassword");
     await userEvent.click(submitButton);
 
@@ -162,5 +203,3 @@ describe("LoginForm", () => {
     ).not.toBeInTheDocument();
   });
 });
-
-

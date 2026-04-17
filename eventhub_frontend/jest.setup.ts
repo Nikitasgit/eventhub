@@ -1,5 +1,9 @@
 import "@testing-library/jest-dom";
 
+jest.mock("./src/services/viteEnv", () => ({
+  getViteApiBaseUrl: (): undefined => undefined,
+}));
+
 // Polyfills pour les APIs Web manquantes dans jsdom
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const { TextEncoder, TextDecoder } = require("util");
