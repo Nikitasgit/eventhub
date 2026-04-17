@@ -22,7 +22,16 @@ pipeline {
         build job: 'TestEventhubJob'
       }
     }
-
+stage('Inject env file') {
+  steps {
+    withCredentials([file(credentialsId: 'eventhub-env-backend', variable: 'ENV_FILE')]) {
+      sh '''
+        echo "👉 Copying .env from Jenkins Credentials"
+        cp "$ENV_FILE" eventhub_backend/.env
+      '''
+    }
+  }
+}
     stage('Install deps') {
       steps {
         sh 'node -v && npm -v'
@@ -124,6 +133,9 @@ pipeline {
   }
 
   post {
+    always {
+      cleanWs()
+    }
     success {
       echo "Pipeline SUCCESS ✅ Image tag: ${IMAGE_TAG}"
     }
