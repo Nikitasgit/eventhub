@@ -4,11 +4,11 @@ module.exports = {
   testEnvironment: "node",
   maxWorkers: 1,
   testRegex: "\\.test\\.ts$",
-  coverageDirectory: "../coverage",
+  coverageDirectory: "coverage",
   coverageProvider: "v8",
   moduleFileExtensions: ["js", "json", "ts", "tsx"],
-  rootDir: "src",
+  rootDir: ".",
   moduleNameMapper: {
-    "^@/(.*)$": "<rootDir>/$1",
+    "^@/(.*)$": "<rootDir>/src/$1",
   },
 };

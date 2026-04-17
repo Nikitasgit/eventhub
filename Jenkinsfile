@@ -2,7 +2,7 @@ pipeline {
   agent any
 
   tools {
-    nodejs 'Node-18'
+    nodejs 'Node-20'
   }
 
   environment {
@@ -25,21 +25,22 @@ pipeline {
 
     stage('Install deps') {
       steps {
+        sh 'node -v && npm -v'
         dir('eventhub_backend') {
           sh '''
             if [ -f package-lock.json ]; then
-              npm ci
+              npm ci --include=dev
             else
-              npm install
+              npm install --include=dev
             fi
           '''
         }
         dir('eventhub_frontend') {
           sh '''
             if [ -f package-lock.json ]; then
-              npm ci
+              npm ci --include=dev
             else
-              npm install
+              npm install --include=dev
             fi
           '''
         }
