@@ -10,16 +10,19 @@ pipeline {
   }
 
   stages {
-stage('Inject env file') {
-  steps {
-    withCredentials([file(credentialsId: 'eventhub-env-backend', variable: 'ENV_FILE')]) {
-      sh '''
-        echo "👉 Copying .env from Jenkins Credentials"
-        cp "$ENV_FILE" eventhub_backend/.env
-      '''
+
+    stage('Inject env file') {
+      steps {
+        withCredentials([file(credentialsId: 'eventhub-env-backend', variable: 'ENV_FILE')]) {
+          sh '''
+            echo "👉 Copying .env from Jenkins Credentials"
+            cp "$ENV_FILE" eventhub_backend/.env
+          '''
+        }
+      }
     }
-  }
-}    stage('Install deps') {
+
+    stage('Install deps') {
       steps {
         sh 'node -v && npm -v'
         dir('eventhub_backend') {
@@ -42,6 +45,7 @@ stage('Inject env file') {
         }
       }
     }
+
     stage('Build') {
       steps {
         build job: 'BuildAppJob'
@@ -53,8 +57,6 @@ stage('Inject env file') {
         build job: 'TestEventhubJob'
       }
     }
-
-
 
     stage('Tests') {
       parallel {
