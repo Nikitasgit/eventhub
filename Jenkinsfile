@@ -10,18 +10,6 @@ pipeline {
   }
 
   stages {
-
-    stage('Build') {
-      steps {
-        build job: 'BuildAppJob'
-      }
-    }
-
-    stage('Results') {
-      steps {
-        build job: 'TestEventhubJob'
-      }
-    }
 stage('Inject env file') {
   steps {
     withCredentials([file(credentialsId: 'eventhub-env-backend', variable: 'ENV_FILE')]) {
@@ -31,8 +19,7 @@ stage('Inject env file') {
       '''
     }
   }
-}
-    stage('Install deps') {
+}    stage('Install deps') {
       steps {
         sh 'node -v && npm -v'
         dir('eventhub_backend') {
@@ -55,6 +42,19 @@ stage('Inject env file') {
         }
       }
     }
+    stage('Build') {
+      steps {
+        build job: 'BuildAppJob'
+      }
+    }
+
+    stage('Results') {
+      steps {
+        build job: 'TestEventhubJob'
+      }
+    }
+
+
 
     stage('Tests') {
       parallel {
