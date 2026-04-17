@@ -14,7 +14,6 @@ API REST pour la gestion d'événements, construite avec Express.js, TypeScript 
 - npm ou yarn
 ## 🛠️ Installation
 1. Cloner le projet
-
 ```bash
 git clone <repository-url>
 cd eventhub-dev2
