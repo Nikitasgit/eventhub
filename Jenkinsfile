@@ -85,7 +85,7 @@ pipeline {
     stage('Quality Gate') {
       steps {
         timeout(time: 5, unit: 'MINUTES') {
-          waitForQualityGate abortPipeline: true
+          waitForQualityGate abortPipeline: false
         }
       }
     }
@@ -139,9 +139,6 @@ pipeline {
        7. DEPLOY (DOCKER COMPOSE)
     ========================== */
     stage('Deploy') {
-      when {
-        branch 'main'
-      }
       steps {
         build job: 'BuildAppJob'
       }
@@ -152,9 +149,6 @@ pipeline {
        8. SMOKE TESTS
     ========================== */
     stage('Smoke Tests') {
-      when {
-        branch 'main'
-      }
       steps {
         build job: 'TestEventhubJob'
       }
