@@ -10,18 +10,6 @@ pipeline {
   }
 
   stages {
-
-    stage('Inject env file') {
-      steps {
-        withCredentials([file(credentialsId: 'eventhub-env-backend', variable: 'ENV_FILE')]) {
-          sh '''
-            echo "👉 Copying .env from Jenkins Credentials"
-            cp "$ENV_FILE" eventhub_backend/.env
-          '''
-        }
-      }
-    }
-
     stage('Install deps') {
       steps {
         sh 'node -v && npm -v'
