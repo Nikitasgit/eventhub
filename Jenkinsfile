@@ -26,10 +26,22 @@ pipeline {
     stage('Install deps') {
       steps {
         dir('eventhub_backend') {
-          sh 'npm ci'
+          sh '''
+            if [ -f package-lock.json ]; then
+              npm ci
+            else
+              npm install
+            fi
+          '''
         }
         dir('eventhub_frontend') {
-          sh 'npm ci'
+          sh '''
+            if [ -f package-lock.json ]; then
+              npm ci
+            else
+              npm install
+            fi
+          '''
         }
       }
     }
