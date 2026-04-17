@@ -23,15 +23,45 @@ pipeline {
       }
     }
 
-stage('SonarQube Analysis') {
-  steps {
-    dir('eventhub_backend') {
-      withSonarQubeEnv('SonarQube') {
-        sh "${tool('SonarScanner')}/bin/sonar-scanner"
+    stage('Install deps') {
+      steps {
+        dir('eventhub_backend') {
+          sh 'npm ci'
+        }
+        dir('eventhub_frontend') {
+          sh 'npm ci'
+        }
       }
     }
-  }
-}
+
+    stage('Tests') {
+      parallel {
+        stage('Backend tests') {
+          steps {
+            dir('eventhub_backend') {
+              sh 'npm test -- --coverage --ci'
+            }
+          }
+        }
+        stage('Frontend tests') {
+          steps {
+            dir('eventhub_frontend') {
+              sh 'npm test -- --coverage --ci'
+            }
+          }
+        }
+      }
+    }
+
+    stage('SonarQube Analysis') {
+      steps {
+        dir('eventhub_backend') {
+          withSonarQubeEnv('SonarQube') {
+            sh "${tool('SonarScanner')}/bin/sonar-scanner"
+          }
+        }
+      }
+    }
 
     stage('Quality Gate') {
       steps {
