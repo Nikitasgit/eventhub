@@ -124,10 +124,6 @@ pipeline {
   }
 
   post {
-    always {
-      sh 'docker rm -f mongo-test 2>/dev/null || true'
-    }
-
     success {
       echo "Pipeline SUCCESS ✅ Image tag: ${IMAGE_TAG}"
     }
