@@ -15,19 +15,20 @@ const express = require("express");
 const request = require("supertest");
 const jwt = require("jsonwebtoken");
 
-const MONGO_CONNECT_TIMEOUT_MS = 60_000;
+const MONGO_SELECTION_MS = 25_000;
+const HOOK_TIMEOUT_MS = MONGO_SELECTION_MS + 10_000;
 
 describe("POST /api/v1/events", () => {
   beforeAll(async () => {
     process.env.JWT_SECRET = process.env.JWT_SECRET ?? "integration-test-secret";
     process.env.MONGO_URI =
-      process.env.MONGO_URI ?? "mongodb://localhost:27017/eventhub_integration_test";
+      process.env.MONGO_URI ?? "mongodb://127.0.0.1:27017/eventhub_integration_test";
 
     await mongoose.connect(process.env.MONGO_URI, {
-      serverSelectionTimeoutMS: MONGO_CONNECT_TIMEOUT_MS,
-      connectTimeoutMS: MONGO_CONNECT_TIMEOUT_MS,
+      serverSelectionTimeoutMS: MONGO_SELECTION_MS,
+      connectTimeoutMS: MONGO_SELECTION_MS,
     });
-  }, MONGO_CONNECT_TIMEOUT_MS);
+  }, HOOK_TIMEOUT_MS);
 
   beforeEach(async () => {
     await EventModel.deleteMany({});
@@ -36,7 +37,7 @@ describe("POST /api/v1/events", () => {
 
   afterAll(async () => {
     await mongoose.connection.close();
-  }, MONGO_CONNECT_TIMEOUT_MS);
+  }, HOOK_TIMEOUT_MS);
 
   const buildTestApp = () => {
     const app = express();

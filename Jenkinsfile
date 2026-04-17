@@ -46,25 +46,63 @@ pipeline {
         }
       }
     }
-stage('Start MongoDB') {
-  steps {
-    sh "docker run -d --name mongo-test -p 27017:27017 mongo:6"
-    sh "sleep 5"
-  }
-}
+
+    stage('Start MongoDB') {
+      steps {
+        sh '''
+          docker rm -f mongo-test 2>/dev/null || true
+          docker run -d --name mongo-test -p 27017:27017 mongo:6
+          echo "Waiting for Mongo to accept connections..."
+          for i in $(seq 1 90); do
+            if docker exec mongo-test mongosh --quiet --eval "db.adminCommand('ping').ok" 2>/dev/null | grep -q 1; then
+              echo "Mongo is ready (after ${i}s)"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Mongo did not become ready in time"
+          exit 1
+        '''
+      }
+    }
+
     stage('Tests') {
-      parallel {
-        stage('Backend tests') {
-          steps {
-            dir('eventhub_backend') {
-              sh 'npm test -- --coverage --ci'
-            }
+      steps {
+        script {
+          def mongoHost = sh(
+            script: '''#!/bin/bash
+# Jenkins agent in Docker: published ports are on the host, use default gateway (not localhost).
+if [ -f /.dockerenv ]; then
+  H=$(ip route show default 2>/dev/null | awk '/default/ {print $3}' | head -1)
+  if [ -z "$H" ]; then H=172.17.0.1; fi
+  echo -n "$H"
+else
+  echo -n "127.0.0.1"
+fi
+''',
+            returnStdout: true
+          ).trim()
+          if (!mongoHost) {
+            mongoHost = "127.0.0.1"
           }
+          env.MONGO_URI = "mongodb://${mongoHost}:27017/eventhub_integration_test"
+          echo "Tests will use MONGO_URI=${env.MONGO_URI}"
         }
-        stage('Frontend tests') {
-          steps {
-            dir('eventhub_frontend') {
-              sh 'npm test -- --coverage --ci'
+        withEnv(["MONGO_URI=${env.MONGO_URI}"]) {
+          parallel {
+            stage('Backend tests') {
+              steps {
+                dir('eventhub_backend') {
+                  sh 'npm test -- --coverage --ci'
+                }
+              }
+            }
+            stage('Frontend tests') {
+              steps {
+                dir('eventhub_frontend') {
+                  sh 'npm test -- --coverage --ci'
+                }
+              }
             }
           }
         }
@@ -129,6 +167,10 @@ stage('Start MongoDB') {
   }
 
   post {
+    always {
+      sh 'docker rm -f mongo-test 2>/dev/null || true'
+    }
+
     success {
       echo "Pipeline SUCCESS ✅ Image tag: ${IMAGE_TAG}"
     }
