@@ -3,6 +3,7 @@ module.exports = {
   preset: "ts-jest",
   testEnvironment: "node",
   maxWorkers: 1,
+  testPathIgnorePatterns: ["/node_modules/", "/src/tests/integration/"],
   testRegex: "\\.test\\.ts$",
   coverageDirectory: "coverage",
   coverageProvider: "v8",
