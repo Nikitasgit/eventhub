@@ -46,7 +46,12 @@ pipeline {
         }
       }
     }
-
+stage('Start MongoDB') {
+  steps {
+    sh "docker run -d --name mongo-test -p 27017:27017 mongo:6"
+    sh "sleep 5"
+  }
+}
     stage('Tests') {
       parallel {
         stage('Backend tests') {
