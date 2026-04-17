@@ -10,9 +10,14 @@ pipeline {
   }
 
   stages {
+
+    /* =========================
+       1. INSTALL DEPENDENCIES
+    ========================== */
     stage('Install deps') {
       steps {
         sh 'node -v && npm -v'
+
         dir('eventhub_backend') {
           sh '''
             if [ -f package-lock.json ]; then
@@ -22,6 +27,7 @@ pipeline {
             fi
           '''
         }
+
         dir('eventhub_frontend') {
           sh '''
             if [ -f package-lock.json ]; then
@@ -34,18 +40,10 @@ pipeline {
       }
     }
 
-    stage('Build') {
-      steps {
-        build job: 'BuildAppJob'
-      }
-    }
 
-    stage('Results') {
-      steps {
-        build job: 'TestEventhubJob'
-      }
-    }
-
+    /* =========================
+       2. TESTS UNITAIRES
+    ========================== */
     stage('Tests') {
       parallel {
         stage('Backend tests') {
@@ -55,6 +53,7 @@ pipeline {
             }
           }
         }
+
         stage('Frontend tests') {
           steps {
             dir('eventhub_frontend') {
@@ -65,6 +64,10 @@ pipeline {
       }
     }
 
+
+    /* =========================
+       3. SONAR ANALYSIS
+    ========================== */
     stage('SonarQube Analysis') {
       steps {
         dir('eventhub_backend') {
@@ -75,14 +78,22 @@ pipeline {
       }
     }
 
+
+    /* =========================
+       4. QUALITY GATE
+    ========================== */
     stage('Quality Gate') {
       steps {
         timeout(time: 5, unit: 'MINUTES') {
-          waitForQualityGate abortPipeline: false
+          waitForQualityGate abortPipeline: true
         }
       }
     }
 
+
+    /* =========================
+       5. DOCKER BUILD
+    ========================== */
     stage('Docker Build') {
       steps {
         sh '''
@@ -92,6 +103,10 @@ pipeline {
       }
     }
 
+
+    /* =========================
+       6. DOCKER PUSH
+    ========================== */
     stage('Docker Push') {
       steps {
         withCredentials([usernamePassword(
@@ -102,9 +117,7 @@ pipeline {
 
           sh '''
             echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-          '''
 
-          sh '''
             docker tag eventhub-backend:${IMAGE_TAG} $DOCKER_USER/eventhub-backend:${IMAGE_TAG}
             docker tag eventhub-backend:latest $DOCKER_USER/eventhub-backend:latest
 
@@ -120,18 +133,50 @@ pipeline {
         }
       }
     }
+
+
+    /* =========================
+       7. DEPLOY (DOCKER COMPOSE)
+    ========================== */
+    stage('Deploy') {
+      when {
+        branch 'main'
+      }
+      steps {
+        build job: 'BuildAppJob'
+      }
+    }
+
+
+    /* =========================
+       8. SMOKE TESTS
+    ========================== */
+    stage('Smoke Tests') {
+      when {
+        branch 'main'
+      }
+      steps {
+        build job: 'TestEventhubJob'
+      }
+    }
+
   }
 
+
+  /* =========================
+     POST ACTIONS
+  ========================== */
   post {
     always {
       cleanWs()
     }
+
     success {
       echo "Pipeline SUCCESS ✅ Image tag: ${IMAGE_TAG}"
     }
 
     failure {
-      echo "Pipeline FAILED ❌ check logs"
+      echo "Pipeline FAILED ❌ Check logs"
     }
   }
 }
