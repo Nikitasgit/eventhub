@@ -32,7 +32,7 @@ export class MongoAnalyticsRepository implements IAnalyticsRepository {
         },
       },
       { $sort: { count: -1 } },
-    ]);
+    ]).exec();
 
     return result.map((item) => ({
       ref: item._id,

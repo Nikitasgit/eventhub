@@ -27,12 +27,14 @@ async function main(): Promise<void> {
       { name },
       { $setOnInsert: { name } },
       { upsert: true },
-    );
+    ).exec();
   }
 
   const categories = await EventCategoryModel.find({
     name: { $in: categoryNames },
-  }).lean();
+  })
+    .lean()
+    .exec();
 
   console.log(
     "✅ Event categories in database:",
@@ -40,7 +42,7 @@ async function main(): Promise<void> {
   );
 
   // Récupérer le premier utilisateur
-  const firstUser = await UserModel.findOne().lean();
+  const firstUser = await UserModel.findOne().lean().exec();
 
   if (!firstUser?._id) {
     console.warn(
